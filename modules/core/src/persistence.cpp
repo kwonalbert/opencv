@@ -13,6 +13,8 @@ namespace cv
 namespace fs
 {
 
+#ifndef OPENCV_SGX
+
 int strcasecmp(const char* s1, const char* s2)
 {
     const char* dummy="";
@@ -2609,6 +2611,8 @@ WriteStructContext::~WriteStructContext()
 {
     fs->endWriteStruct();
 }
+
+#endif //OPENCV_SGX
 
 }
 

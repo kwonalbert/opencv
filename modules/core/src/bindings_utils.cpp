@@ -4,10 +4,14 @@
 
 #include "precomp.hpp"
 #include "opencv2/core/bindings_utils.hpp"
+
+#ifndef OPENCV_SGX
 #include <sstream>
+#endif // OPENCV_SGX
 
 namespace cv { namespace utils {
 
+#ifndef OPENCV_SGX
 String dumpInputArray(InputArray argument)
 {
     if (&argument == &noArray())
@@ -141,5 +145,26 @@ CV_EXPORTS_W String dumpInputOutputArrayOfArrays(InputOutputArrayOfArrays argume
     }
     return ss.str();
 }
+#else
+String dumpInputArray(InputArray argument)
+{
+    return "Not supported in SGX";
+}
+
+CV_EXPORTS_W String dumpInputArrayOfArrays(InputArrayOfArrays argument)
+{
+    return "Not supported in SGX";
+}
+
+CV_EXPORTS_W String dumpInputOutputArray(InputOutputArray argument)
+{
+    return "Not supported in SGX";
+}
+
+CV_EXPORTS_W String dumpInputOutputArrayOfArrays(InputOutputArrayOfArrays argument)
+{
+    return "Not supported in SGX";
+}
+#endif // OPENCV_SGX
 
 }} // namespace

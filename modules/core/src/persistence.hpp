@@ -6,6 +6,8 @@
 #ifndef SRC_PERSISTENCE_HPP
 #define SRC_PERSISTENCE_HPP
 
+#ifndef OPENCV_SGX
+
 #include "opencv2/core/types_c.h"
 #include <deque>
 #include <sstream>
@@ -198,5 +200,7 @@ Ptr<FileStorageParser> createYAMLParser(FileStorage_API* fs);
 Ptr<FileStorageParser> createJSONParser(FileStorage_API* fs);
 
 }
+
+#endif // OPENCV_SGX
 
 #endif // SRC_PERSISTENCE_HPP

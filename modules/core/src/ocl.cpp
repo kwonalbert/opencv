@@ -45,9 +45,11 @@
 #include <deque>
 #include <set>
 #include <string>
+#ifndef OPENCV_SGX
 #include <sstream>
 #include <iostream> // std::cerr
 #include <fstream>
+#endif // OPENCV_SGX
 #if !(defined _MSC_VER) || (defined _MSC_VER && _MSC_VER > 1700)
 #include <inttypes.h>
 #endif
@@ -1683,6 +1685,7 @@ inline cl_int getStringInfo(Functor f, ObjectType obj, cl_uint name, std::string
 
 static void split(const std::string &s, char delim, std::vector<std::string> &elems)
 {
+#ifndef OPENCV_SGX
     elems.clear();
     if (s.size() == 0)
         return;
@@ -1693,6 +1696,24 @@ static void split(const std::string &s, char delim, std::vector<std::string> &el
         std::getline(ss, item, delim);
         elems.push_back(item);
     }
+#else
+    size_t last = 0;
+    size_t index = 0;
+
+    elems.clear();
+    if (s.size() == 0)
+	return;
+
+    s.find_first_of(delim, last);
+    while (index != std::string::npos) {
+	elems.push_back(s.substr(last, index - last));
+	last = index + 1;
+	index = s.find_first_of(delim, last);
+    }
+    if (index - last > 0) {
+	elems.push_back(s.substr(last, index - last));
+    }
+#endif // OPENCV_SGX
 }
 
 // Layout: <Platform>:<CPU|GPU|ACCELERATOR|nothing=GPU/CPU>:<deviceName>
@@ -1706,7 +1727,9 @@ static bool parseOpenCLDeviceConfiguration(const std::string& configurationStr,
     split(configurationStr, ':', parts);
     if (parts.size() > 3)
     {
+#ifndef OPENCV_SGX
         std::cerr << "ERROR: Invalid configuration string for OpenCL device" << std::endl;
+#endif // OPENCV_SGX
         return false;
     }
     if (parts.size() > 2)
@@ -1722,7 +1745,7 @@ static bool parseOpenCLDeviceConfiguration(const std::string& configurationStr,
     return true;
 }
 
-#ifdef WINRT
+#if defined(WINRT) || defined(OPENCV_SGX)
 static cl_device_id selectOpenCLDevice()
 {
     return NULL;
@@ -1793,7 +1816,9 @@ static cl_device_id selectOpenCLDevice()
         }
         if (selectedPlatform == -1)
         {
+#ifndef OPENCV_SGX
             std::cerr << "ERROR: Can't find OpenCL platform by name: " << platform << std::endl;
+#endif // OPENCV_SGX
             goto not_found;
         }
     }
@@ -1824,7 +1849,9 @@ static cl_device_id selectOpenCLDevice()
             deviceType = Device::TYPE_ALL;
         else
         {
+#ifndef OPENCV_SGX
             std::cerr << "ERROR: Unsupported device type for OpenCL device (GPU, CPU, ACCELERATOR): " << deviceTypes[t] << std::endl;
+#endif // OPENCV_SGX
             goto not_found;
         }
 
@@ -1875,6 +1902,7 @@ not_found:
     if (!configuration)
         return NULL; // suppress messages on stderr
 
+#ifndef OPENCV_SGX
     std::cerr << "ERROR: Requested OpenCL device not found, check configuration: " << configuration << std::endl
             << "    Platform: " << (platform.length() == 0 ? "any" : platform) << std::endl
             << "    Device types: ";
@@ -1882,6 +1910,7 @@ not_found:
         std::cerr << deviceTypes[t] << " ";
 
     std::cerr << std::endl << "    Device name: " << (deviceName.length() == 0 ? "any" : deviceName) << std::endl;
+#endif // OPENCV_SGX
     return NULL;
 }
 #endif
@@ -3172,7 +3201,7 @@ bool Kernel::Impl::run(int dims, size_t globalsize[], size_t localsize[],
         }
 #if CV_OPENCL_TRACE_CHECK
         CV_OCL_TRACE_CHECK_RESULT(retval, msg.c_str());
-#else
+#elif !defined(OPENCV_SGX)
         printf("%s\n", msg.c_str());
         fflush(stdout);
 #endif
@@ -6115,18 +6144,19 @@ const char* convertTypeStr(int sdepth, int ddepth, int cn, char* buf)
     if( sdepth == ddepth )
         return "noconvert";
     const char *typestr = typeToStr(CV_MAKETYPE(ddepth, cn));
+    // TODO: 40 is set manually here, since the callers seem to use 40 byte bufs
+    // but need a way to pass in lengths
     if( ddepth >= CV_32F ||
         (ddepth == CV_32S && sdepth < CV_32S) ||
         (ddepth == CV_16S && sdepth <= CV_8S) ||
         (ddepth == CV_16U && sdepth == CV_8U))
     {
-        sprintf(buf, "convert_%s", typestr);
+        snprintf(buf, 40, "convert_%s", typestr);
     }
     else if( sdepth >= CV_32F )
-        sprintf(buf, "convert_%s%s_rte", typestr, (ddepth < CV_32S ? "_sat" : ""));
+        snprintf(buf, 40, "convert_%s%s_rte", typestr, (ddepth < CV_32S ? "_sat" : ""));
     else
-        sprintf(buf, "convert_%s_sat", typestr);
-
+        snprintf(buf, 40, "convert_%s_sat", typestr);
     return buf;
 }
 
@@ -6216,6 +6246,7 @@ const char* getOpenCLErrorString(int errorCode)
 template <typename T>
 static std::string kerToStr(const Mat & k)
 {
+#ifndef OPENCV_SGX
     int width = k.cols - 1, depth = k.depth();
     const T * const data = k.ptr<T>();
 
@@ -6243,6 +6274,10 @@ static std::string kerToStr(const Mat & k)
     }
 
     return stream.str();
+#else
+    // TODO
+    return "";
+#endif //OPENCV_SGX
 }
 
 String kernelToStr(InputArray _kernel, int ddepth, const char * name)

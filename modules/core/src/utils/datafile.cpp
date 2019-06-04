@@ -2,6 +2,8 @@
 // It is subject to the license terms in the LICENSE file found in the top-level directory
 // of this distribution and at http://opencv.org/license.html.
 
+#ifndef OPENCV_SGX
+
 #include "../precomp.hpp"
 
 #include "opencv_data_config.hpp"
@@ -168,10 +170,8 @@ cv::String findDataFile(const cv::String& relative_path,
     } \
 }
 
-
     // Step 0: check current directory or absolute path at first
     TRY_FILE_WITH_PREFIX("");
-
 
     // Step 1
     const std::vector<cv::String>& search_path = search_paths ? *search_paths : _getDataSearchPath();
@@ -386,3 +386,5 @@ cv::String findDataFile(const cv::String& relative_path, bool required, const ch
 }
 
 }} // namespace
+
+#endif // OPENCV_SGX

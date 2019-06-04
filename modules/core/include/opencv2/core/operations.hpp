@@ -433,6 +433,8 @@ Ptr<Formatted> format(InputArray mtx, Formatter::FormatType fmt)
     return Formatter::get(fmt)->format(mtx.getMat());
 }
 
+#ifndef OPENCV_SGX
+
 static inline
 int print(Ptr<Formatted> fmtd, FILE* stream = stdout)
 {
@@ -473,6 +475,8 @@ int print(const Matx<_Tp, m, n>& matx, FILE* stream = stdout)
 {
     return print(Formatter::get()->format(cv::Mat(matx)), stream);
 }
+
+#endif // OPENCV_SGX
 
 //! @endcond
 

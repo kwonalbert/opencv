@@ -7,7 +7,9 @@
 
 // TODO Move to CMake?
 #ifndef OPENCV_HAVE_FILESYSTEM_SUPPORT
-#  if defined(__EMSCRIPTEN__) || defined(__native_client__)
+#  if defined(OPENCV_SGX)
+     /* no support */
+#  elif defined(__EMSCRIPTEN__) || defined(__native_client__)
      /* no support */
 #  elif defined WINRT
      /* not supported */

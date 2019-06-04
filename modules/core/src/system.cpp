@@ -42,8 +42,10 @@
 //M*/
 
 #include "precomp.hpp"
+#ifndef OPENCV_SGX
 #include <iostream>
 #include <ostream>
+#endif // OPENCV_SGX
 
 #include <opencv2/core/utils/configuration.private.hpp>
 #include <opencv2/core/utils/trace.private.hpp>
@@ -98,9 +100,11 @@ void* allocSingletonNewBuffer(size_t size) { return malloc(size); }
 
 #if defined __ANDROID__ || defined __linux__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __HAIKU__ || defined __Fuchsia__
 #  include <unistd.h>
+#ifndef OPENCV_SGX
 #  include <fcntl.h>
 #  include <elf.h>
-#if defined __ANDROID__ || defined __linux__
+#endif // OPENCV_SGX
+#if defined __ANDROID__ || defined __linux__ && !defined(OPENCV_SGX)
 #  include <linux/auxvec.h>
 #endif
 #endif
@@ -188,7 +192,7 @@ std::wstring GetTempFileNameWinRT(std::wstring prefix)
 }
 
 #endif
-#else
+#elif !defined(OPENCV_SGX)
 #include <pthread.h>
 #include <sys/time.h>
 #include <time.h>
@@ -275,6 +279,7 @@ const char* Exception::what() const throw() { return msg.c_str(); }
 
 void Exception::formatMessage()
 {
+#ifndef OPENCV_SGX
     size_t pos = err.find('\n');
     bool multiline = pos != cv::String::npos;
     if (multiline)
@@ -303,6 +308,13 @@ void Exception::formatMessage()
     {
         msg = format("OpenCV(%s) %s:%d: error: (%d:%s) %s%s", CV_VERSION, file.c_str(), line, code, cvErrorStr(code), err.c_str(), multiline ? "" : "\n");
     }
+#else
+    if (func.size() > 0) {
+	msg = format("OpenCV(%s) %s:%d: error: (%d:%s) in function '%s'\n", CV_VERSION, file.c_str(), line, code, cvErrorStr(code), func.c_str());
+    } else {
+        msg = format("OpenCV(%s) %s:%d: error: (%d:%s) %s", CV_VERSION, file.c_str(), line, code, cvErrorStr(code), "");
+    }
+#endif // OPENCV_SGX
 }
 
 static const char* g_hwFeatureNames[CV_HARDWARE_MAX_FEATURE] = { NULL };
@@ -378,7 +390,7 @@ struct HWFeatures
 
     void initialize(void)
     {
-#ifndef WINRT
+#if !defined(WINRT) && !defined(OPENCV_SGX)
         if (getenv("OPENCV_DUMP_CONFIG"))
         {
             fprintf(stderr, "\nOpenCV build configuration is:\n%s\n",
@@ -568,6 +580,7 @@ struct HWFeatures
         int baseline_features[] = { CV_CPU_BASELINE_FEATURES };
         if (!checkFeatures(baseline_features, sizeof(baseline_features) / sizeof(baseline_features[0])))
         {
+#ifndef OPENCV_SGX
             fprintf(stderr, "\n"
                     "******************************************************************\n"
                     "* FATAL ERROR:                                                   *\n"
@@ -576,6 +589,7 @@ struct HWFeatures
                     "* Use OPENCV_DUMP_CONFIG=1 environment variable for details      *\n"
                     "******************************************************************\n");
             fprintf(stderr, "\nRequired baseline features:\n");
+#endif // OPENCV_SGX
             checkFeatures(baseline_features, sizeof(baseline_features) / sizeof(baseline_features[0]), true);
             CV_Error(cv::Error::StsAssert, "Missing support for required CPU baseline features. Check OpenCV build configuration and required CPU/HW setup.");
         }
@@ -593,12 +607,16 @@ struct HWFeatures
             {
                 if (have[feature])
                 {
+#ifndef OPENCV_SGX
                     if (dump) fprintf(stderr, "%s - OK\n", getHWFeatureNameSafe(feature));
+#endif // OPENCV_SGX
                 }
                 else
                 {
                     result = false;
+#ifndef OPENCV_SGX
                     if (dump) fprintf(stderr, "%s - NOT AVAILABLE\n", getHWFeatureNameSafe(feature));
+#endif // OPENCV_SGX
                 }
             }
         }
@@ -614,7 +632,7 @@ struct HWFeatures
     {
         bool dump = true;
         const char* disabled_features =
-#ifndef WINRT
+#ifndef NO_GETENV
                 getenv("OPENCV_CPU_DISABLE");
 #else
                 NULL;
@@ -661,14 +679,18 @@ struct HWFeatures
                         }
                         if (isBaseline)
                         {
+#ifndef OPENCV_SGX
                             if (dump) fprintf(stderr, "OPENCV: Trying to disable baseline CPU feature: '%s'."
                                                       "This has very limited effect, because code optimizations for this feature are executed unconditionally "
                                                       "in the most cases.\n", getHWFeatureNameSafe(i));
+#endif // OPENCV_SGX
                         }
                         if (!have[i])
                         {
+#ifndef OPENCV_SGX
                             if (dump) fprintf(stderr, "OPENCV: Trying to disable unavailable CPU feature on the current platform: '%s'.\n",
                                 getHWFeatureNameSafe(i));
+#endif // OPENCV_SGX
                         }
                         have[i] = false;
 
@@ -678,7 +700,9 @@ struct HWFeatures
                 }
                 if (!found)
                 {
+#ifndef OPENCV_SGX
                     if (dump) fprintf(stderr, "OPENCV: Trying to disable unknown CPU feature: '%s'.\n", feature.c_str());
+#endif // OPENCV_SGX
                 }
             }
         }
@@ -743,7 +767,11 @@ bool useOptimized(void)
 
 int64 getTickCount(void)
 {
-#if defined _WIN32 || defined WINCE
+#if defined(OPENCV_SGX)
+    // TODO(Badge): currently assuming tick count is 1,
+    // since it seems like it's only used for performance measurement?
+    return 1;
+#elif defined _WIN32 || defined WINCE
     LARGE_INTEGER counter;
     QueryPerformanceCounter( &counter );
     return (int64)counter.QuadPart;
@@ -763,7 +791,9 @@ int64 getTickCount(void)
 
 double getTickFrequency(void)
 {
-#if defined _WIN32 || defined WINCE
+#if defined(OPENCV_SGX)
+    return 1e6;
+#elif defined _WIN32 || defined WINCE
     LARGE_INTEGER freq;
     QueryPerformanceFrequency(&freq);
     return (double)freq.QuadPart;
@@ -887,6 +917,7 @@ String format( const char* fmt, ... )
     }
 }
 
+#ifndef OPENCV_SGX
 String tempfile( const char* suffix )
 {
     String fname;
@@ -962,6 +993,7 @@ String tempfile( const char* suffix )
     }
     return fname;
 }
+#endif // OPENCV_SGX
 
 static ErrorCallback customErrorCallback = 0;
 static void* customErrorCallbackData = 0;
@@ -1016,7 +1048,7 @@ static void dumpException(const Exception& exc)
         exc.func.c_str() : "unknown function", exc.file.c_str(), exc.line);
 #ifdef __ANDROID__
     __android_log_print(ANDROID_LOG_ERROR, "cv::error()", "%s", buf);
-#else
+#elif !defined(OPENCV_SGX)
     fflush(stdout); fflush(stderr);
     fprintf(stderr, "%s\n", buf);
     fflush(stderr);
@@ -1212,7 +1244,7 @@ CV_IMPL const char* cvErrorStr( int status )
     case CV_OpenGlApiCallError :     return "OpenGL API call";
     };
 
-    sprintf(buf, "Unknown %s code %d", status >= 0 ? "status":"error", status);
+    snprintf(buf, 256, "Unknown %s code %d", status >= 0 ? "status":"error", status);
     return buf;
 }
 
@@ -1304,7 +1336,7 @@ private:
 #ifndef WINRT
     DWORD tlsKey;
 #endif
-#else // _WIN32
+#elif !defined(OPENCV_SGX) // _WIN32
     pthread_key_t  tlsKey;
 #endif
 };
@@ -1341,7 +1373,7 @@ void  TlsAbstraction::SetData(void *pData)
     CV_Assert(TlsSetValue(tlsKey, pData) == TRUE);
 }
 #endif
-#else // _WIN32
+#elif !defined(OPENCV_SGX) // _WIN32
 TlsAbstraction::TlsAbstraction()
 {
     CV_Assert(pthread_key_create(&tlsKey, NULL) == 0);
@@ -1650,9 +1682,13 @@ public:
     ParseError(const std::string bad_value_) :bad_value(bad_value_) {}
     std::string toString(const std::string &param) const
     {
+#ifndef OPENCV_SGX
         std::ostringstream out;
         out << "Invalid value for parameter " << param << ": " << bad_value;
         return out.str();
+#else
+	return "Invalid value for parameter";
+#endif // OPENCV_SGX
     }
 };
 

@@ -57,6 +57,7 @@ private:
 
     void handleMalformed()
     {
+#ifndef OPENCV_SGX
         // need to print warning for malformed log tag config strings?
         if (m_isDebugBuild)
         {
@@ -71,6 +72,7 @@ private:
                 std::cout.flush();
             }
         }
+#endif // OPENCV_SGX
     }
 };
 
@@ -181,6 +183,7 @@ namespace internal {
 
 void writeLogMessage(LogLevel logLevel, const char* message)
 {
+#ifndef OPENCV_SGX
     const int threadID = cv::utils::getThreadID();
     std::ostringstream ss;
     switch (logLevel)
@@ -213,10 +216,12 @@ void writeLogMessage(LogLevel logLevel, const char* message)
     (*out) << ss.str();
     if (logLevel <= LOG_LEVEL_WARNING)
         (*out) << std::flush;
+#endif // OPENCV_SGX
 }
 
 void writeLogMessageEx(LogLevel logLevel, const char* tag, const char* file, int line, const char* func, const char* message)
 {
+#ifndef OPENCV_SGX
     std::ostringstream strm;
     if (tag)
     {
@@ -236,6 +241,7 @@ void writeLogMessageEx(LogLevel logLevel, const char* tag, const char* file, int
     }
     strm << message;
     writeLogMessage(logLevel, strm.str().c_str());
+#endif // OPENCV_SGX
 }
 
 } // namespace

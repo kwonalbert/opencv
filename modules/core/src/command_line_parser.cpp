@@ -1,3 +1,4 @@
+#ifndef OPENCV_SGX
 // This file is part of OpenCV project.
 // It is subject to the license terms in the LICENSE file found in the top-level directory
 // of this distribution and at http://opencv.org/license.html.
@@ -555,3 +556,4 @@ std::vector<String> CommandLineParser::Impl::split_string(const String& _str, ch
 }
 
 }
+#endif // OPENCV_SGX

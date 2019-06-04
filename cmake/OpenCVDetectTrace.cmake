@@ -1,5 +1,6 @@
 if(WITH_ITT)
   if(BUILD_ITT)
+    message("------------------------here------------------------")
     add_subdirectory("${OpenCV_SOURCE_DIR}/3rdparty/ittnotify")
     set(ITT_INCLUDE_DIR "${OpenCV_SOURCE_DIR}/3rdparty/ittnotify/include")
     set(ITT_INCLUDE_DIRS "${ITT_INCLUDE_DIR}")

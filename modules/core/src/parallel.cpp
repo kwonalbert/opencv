@@ -138,7 +138,9 @@
 
 
 #ifndef CV__EXCEPTION_PTR
-#  if defined(__ANDROID__) && defined(ATOMIC_INT_LOCK_FREE) && ATOMIC_INT_LOCK_FREE < 2
+#  if defined(OPENCV_SGX)
+#    define CV__EXCEPTION_PTR 0
+#  elif defined(__ANDROID__) && defined(ATOMIC_INT_LOCK_FREE) && ATOMIC_INT_LOCK_FREE < 2
 #    define CV__EXCEPTION_PTR 0  // Not supported, details: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58938
 #  elif defined(CV_CXX11)
 #    define CV__EXCEPTION_PTR 1
@@ -825,6 +827,9 @@ int cv::getNumberOfCPUs(void)
 #endif
 
     return (int)sysinfo.dwNumberOfProcessors;
+#elif defined(OPENCV_SGX)
+    // TODO: for now, assuming there is only one processor in SGX
+    return 1;
 #elif defined __ANDROID__
     static int ncpus = getNumberOfCPUsImpl();
     return ncpus;

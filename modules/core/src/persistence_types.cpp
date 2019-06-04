@@ -2,6 +2,8 @@
 // It is subject to the license terms in the LICENSE file found in the top-level directory
 // of this distribution and at http://opencv.org/license.html
 
+#ifndef OPENCV_SGX
+
 #include "precomp.hpp"
 #include "persistence.hpp"
 
@@ -317,3 +319,5 @@ void read(const FileNode& node, std::vector<DMatch>& matches)
 
 
 }
+
+#endif // OPENCV_SGX

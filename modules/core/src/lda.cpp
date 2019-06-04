@@ -17,7 +17,9 @@
  */
 
 #include "precomp.hpp"
+#ifndef OPENCV_SGX
 #include <iostream>
+#endif // OPENCV_SGX
 #include <map>
 #include <set>
 
@@ -1093,9 +1095,11 @@ void LDA::lda(InputArrayOfArrays _src, InputArray _lbls) {
     }
     // warn if within-classes scatter matrix becomes singular
     if (N < D) {
+#ifndef OPENCV_SGX
         std::cout << "Warning: Less observations than feature dimension given!"
                   << "Computation will probably fail."
                   << std::endl;
+#endif // OPENCV_SGX
     }
     // clip number of components to be a valid number
     if ((_num_components <= 0) || (_num_components >= C)) {

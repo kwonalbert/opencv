@@ -115,10 +115,12 @@ UMatData::~UMatData()
             if (warn_message_showed++ < 100)
             {
                 fflush(stdout);
+#ifndef OPENCV_SGX
                 fprintf(stderr, "\n! OPENCV warning: getUMat()/getMat() call chain possible problem."
                                 "\n!                 Base object is dead, while nested/derived object is still alive or processed."
                                 "\n!                 Please check lifetime of UMat/Mat objects!\n");
                 fflush(stderr);
+#endif // OPENCV_SGX
             }
         }
 #else
@@ -373,7 +375,9 @@ UMat Mat::getUMat(AccessFlag accessFlags, UMatUsageFlags usageFlags) const
     }
     catch (const cv::Exception& e)
     {
+#ifndef OPENCV_SGX
         fprintf(stderr, "Exception: %s\n", e.what());
+#endif // OPENCV_SGX
     }
     if (!allocated)
     {

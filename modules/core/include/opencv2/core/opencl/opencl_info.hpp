@@ -7,6 +7,13 @@
 #include <opencv2/core.hpp>
 #include <opencv2/core/ocl.hpp>
 
+#ifdef OPENCV_SGX
+#include <string>
+
+#define DUMP_CONFIG_PROPERTY(...)
+#define DUMP_MESSAGE_STDOUT(...)
+#endif
+
 #ifndef DUMP_CONFIG_PROPERTY
 #define DUMP_CONFIG_PROPERTY(...)
 #endif
@@ -20,6 +27,7 @@ namespace cv {
 namespace {
 static std::string bytesToStringRepr(size_t value)
 {
+#ifndef OPENCV_SGX
     size_t b = value % 1024;
     value /= 1024;
 
@@ -46,6 +54,9 @@ static std::string bytesToStringRepr(size_t value)
     if (s[s.size() - 1] == ' ')
         s = s.substr(0, s.size() - 1);
     return s;
+#else
+    return std::to_string(value);
+#endif // OPENCV_SGX
 }
 } // namespace
 

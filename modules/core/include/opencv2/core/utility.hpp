@@ -54,7 +54,10 @@
 #endif
 
 #include "opencv2/core.hpp"
+
+#ifndef OPENCV_SGX
 #include <ostream>
+#endif // OPENCV_SGX
 
 #include <functional>
 
@@ -427,11 +430,13 @@ std::cout << tm;
 @endcode
 */
 
+#ifndef OPENCV_SGX
 static inline
 std::ostream& operator << (std::ostream& out, const TickMeter& tm)
 {
     return out << tm.getTimeSec() << "sec";
 }
+#endif // OPENCV_SGX
 
 /** @brief Returns the number of CPU ticks.
 

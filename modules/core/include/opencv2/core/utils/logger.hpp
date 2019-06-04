@@ -106,6 +106,7 @@ struct LogTagAuto
 // non-null. Do not re-define.
 #define CV_LOGTAG_GLOBAL cv::utils::logging::internal::getGlobalLogTag()
 
+#ifndef OPENCV_SGX
 #define CV_LOG_WITH_TAG(tag, msgLevel, ...) \
     for(;;) { \
         const auto cv_temp_msglevel = (cv::utils::logging::LogLevel)(msgLevel); \
@@ -125,6 +126,9 @@ struct LogTagAuto
             cv_temp_logstream.str().c_str()); \
         break; \
     }
+#else
+#define CV_LOG_WITH_TAG(tag, msgLevel, ...)
+#endif
 
 #define CV_LOG_FATAL(tag, ...)   CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_FATAL, __VA_ARGS__)
 #define CV_LOG_ERROR(tag, ...)   CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_ERROR, __VA_ARGS__)

@@ -14,6 +14,36 @@ FATAL: In-source builds are not allowed.
 ")
 endif()
 
+if(BUILD_SGX)
+  set (BUILD_LIST core)
+  set (CMAKE_BUILD_TYPE Release)
+  set (BUILD_SHARED_LIBS No)
+  set (WITH_IPP OFF)
+  set (WITH_ITT OFF)
+  set (WITH_PROTOBUF OFF)
+  set (CV_TRACE OFF)
+  set (WITH_QUIRC OFF)
+  set (WITH_ADE OFF)
+  set (WITH_EIGEN OFF)
+  set (WITH_OPENCL OFF)
+  set (WITH_PTHREADS_PF OFF)
+  set (BUILD_opencv_apps OFF)
+
+  add_definitions (-DOPENCV_SGX -DNO_GETENV)
+  set (SGX_PATH /opt/intel/sgxsdk)
+  set (SGX_INCLUDE_DIR ${SGX_PATH}/include)
+  set (SGX_LIBRARY_PATH ${SGX_PATH}/lib64)
+  set (SGX_TLIBC_INCLUDE_DIR ${SGX_INCLUDE_DIR}/tlibc)
+  set (SGX_LIBCXX_INCLUDE_DIR ${SGX_INCLUDE_DIR}/libcxx)
+  set (CMAKE_C_FLAGS_RELEASE "-nostdinc -nodefaultlibs -fpie -fstack-protector-strong -I${SGX_INCLUDE_DIR} -I${SGX_TLIBC_INCLUDE_DIR} -I${SGX_LIBCXX_INCLUDE_DIR} -I/usr/lib/gcc/x86_64-pc-linux-gnu/8.3.0/include")
+  set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -nostdinc++")
+  set (CMAKE_SHARED_LINKER_FLAGS_RELEASE "-Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L${SGX_LIBRARY_PATH} \
+				-Wl,--whole-archive -lsgx_trts -Wl,--no-whole-archive \
+				-Wl,--start-group -lsgx_tstdc -lsgx_tcxx -lsgx_tkey_exchange -lsgx_tcrypto -lsgx_tservice_sim -Wl,--end-group \
+				-Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined \
+				-Wl,-pie,-eenclave_entry -Wl,--export-dynamic \
+				-Wl,--defsym,__ImageBase=0")
+endif()
 
 include(cmake/OpenCVMinDepVersions.cmake)
 
@@ -853,6 +883,7 @@ if(WITH_QUIRC)
   add_subdirectory(3rdparty/quirc)
   set(HAVE_QUIRC TRUE)
 endif()
+
 # ----------------------------------------------------------------------------
 # OpenCV HAL
 # ----------------------------------------------------------------------------

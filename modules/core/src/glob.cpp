@@ -40,6 +40,8 @@
 //
 //M*/
 
+#ifndef OPENCV_SGX
+
 #include "precomp.hpp"
 
 #include "opencv2/core/utils/filesystem.hpp"
@@ -320,3 +322,5 @@ void cv::utils::fs::glob_relative(const cv::String& directory, const cv::String&
     glob_rec(directory, pattern, result, recursive, includeDirectories, cv::String());
     std::sort(result.begin(), result.end());
 }
+
+#endif // OPENCV_SGX

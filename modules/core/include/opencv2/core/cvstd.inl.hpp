@@ -44,8 +44,10 @@
 #ifndef OPENCV_CORE_CVSTDINL_HPP
 #define OPENCV_CORE_CVSTDINL_HPP
 
+#ifndef OPENCV_SGX
 #include <complex>
 #include <ostream>
+#endif
 
 //! @cond IGNORED
 
@@ -56,6 +58,8 @@
 
 namespace cv
 {
+
+#ifndef OPENCV_SGX
 
 template<typename _Tp> class DataType< std::complex<_Tp> >
 {
@@ -184,6 +188,8 @@ static inline std::ostream &operator<< (std::ostream &s, cv::Range &r)
 {
     return s << "[" << r.start << " : " << r.end << ")";
 }
+
+#endif // OPENCV_SGX
 
 } // cv
 
