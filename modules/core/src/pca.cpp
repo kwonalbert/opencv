@@ -148,6 +148,7 @@ PCA& PCA::operator()(InputArray _data, InputArray __mean, int flags, int maxComp
     return *this;
 }
 
+#ifndef OPENCV_SGX
 void PCA::write(FileStorage& fs ) const
 {
     CV_Assert( fs.isOpened() );
@@ -167,6 +168,7 @@ void PCA::read(const FileNode& fn)
     cv::read(fn["values"], eigenvalues);
     cv::read(fn["mean"], mean);
 }
+#endif // OPENCV_SGX
 
 template <typename T>
 int computeCumulativeEnergy(const Mat& eigenvalues, double retainedVariance)

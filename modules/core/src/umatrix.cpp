@@ -114,8 +114,8 @@ UMatData::~UMatData()
             static int warn_message_showed = 0;
             if (warn_message_showed++ < 100)
             {
-                fflush(stdout);
 #ifndef OPENCV_SGX
+                fflush(stdout);
                 fprintf(stderr, "\n! OPENCV warning: getUMat()/getMat() call chain possible problem."
                                 "\n!                 Base object is dead, while nested/derived object is still alive or processed."
                                 "\n!                 Please check lifetime of UMat/Mat objects!\n");

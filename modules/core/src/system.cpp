@@ -45,6 +45,8 @@
 #ifndef OPENCV_SGX
 #include <iostream>
 #include <ostream>
+#else
+#include <sgx_cpuid.h>
 #endif // OPENCV_SGX
 
 #include <opencv2/core/utils/configuration.private.hpp>
@@ -236,8 +238,10 @@ DECLARE_CV_CPUID_X86
     static void cv_cpuid(int* cpuid_data, int reg_eax, int reg_ecx)
     {
         int __eax = reg_eax, __ebx = 0, __ecx = reg_ecx, __edx = 0;
+#if defined(OPENCV_SGX)
+	sgx_cpuid(cpuid_data, reg_eax);
 // tested with available compilers (-fPIC -O2 -m32/-m64): https://godbolt.org/
-#if !defined(__PIC__) \
+#elif !defined(__PIC__) \
     || defined(__x86_64__) || __GNUC__ >= 5 \
     || defined(__clang__) || defined(__INTEL_COMPILER)
         __asm__("cpuid\n\t"
@@ -577,10 +581,10 @@ struct HWFeatures
         have[CV_CPU_VSX3] = (CV_VSX3);
     #endif
 
+#ifndef OPENCV_SGX // ignoring hardware capabilities in SGX for now..
         int baseline_features[] = { CV_CPU_BASELINE_FEATURES };
         if (!checkFeatures(baseline_features, sizeof(baseline_features) / sizeof(baseline_features[0])))
         {
-#ifndef OPENCV_SGX
             fprintf(stderr, "\n"
                     "******************************************************************\n"
                     "* FATAL ERROR:                                                   *\n"
@@ -589,12 +593,12 @@ struct HWFeatures
                     "* Use OPENCV_DUMP_CONFIG=1 environment variable for details      *\n"
                     "******************************************************************\n");
             fprintf(stderr, "\nRequired baseline features:\n");
-#endif // OPENCV_SGX
             checkFeatures(baseline_features, sizeof(baseline_features) / sizeof(baseline_features[0]), true);
             CV_Error(cv::Error::StsAssert, "Missing support for required CPU baseline features. Check OpenCV build configuration and required CPU/HW setup.");
         }
 
         readSettings(baseline_features, sizeof(baseline_features) / sizeof(baseline_features[0]));
+#endif // OPENCV_SGX
     }
 
     bool checkFeatures(const int* features, int count, bool dump = false)
@@ -1373,7 +1377,7 @@ void  TlsAbstraction::SetData(void *pData)
     CV_Assert(TlsSetValue(tlsKey, pData) == TRUE);
 }
 #endif
-#elif !defined(OPENCV_SGX) // _WIN32
+#elif !defined(OPENCV_SGX)
 TlsAbstraction::TlsAbstraction()
 {
     CV_Assert(pthread_key_create(&tlsKey, NULL) == 0);
@@ -1389,6 +1393,20 @@ void* TlsAbstraction::GetData() const
 void  TlsAbstraction::SetData(void *pData)
 {
     CV_Assert(pthread_setspecific(tlsKey, pData) == 0);
+}
+#elif defined(OPENCV_SGX) // just empty place holders
+TlsAbstraction::TlsAbstraction()
+{
+}
+TlsAbstraction::~TlsAbstraction()
+{
+}
+void* TlsAbstraction::GetData() const
+{
+    return NULL;
+}
+void  TlsAbstraction::SetData(void *pData)
+{
 }
 #endif
 

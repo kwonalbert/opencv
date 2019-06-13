@@ -55,11 +55,17 @@
 #define OPENCV_ALLOC_STATISTICS_LIMIT 4096  // don't track buffers less than N bytes
 
 
+#ifndef OPENCV_SGX
 #ifdef HAVE_POSIX_MEMALIGN
 #include <stdlib.h>
 #elif defined HAVE_MALLOC_H
 #include <malloc.h>
 #endif
+#else // OPENCV_SGX
+#undef HAVE_POSIX_MEMALIGN
+#undef HAVE_MEMALIGN
+#include <stdlib.h>
+#endif // OPENCV_SGX
 
 #ifdef OPENCV_ALLOC_ENABLE_STATISTICS
 #include <map>

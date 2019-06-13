@@ -43,6 +43,10 @@ if(BUILD_SGX)
 				-Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined \
 				-Wl,-pie,-eenclave_entry -Wl,--export-dynamic \
 				-Wl,--defsym,__ImageBase=0")
+  set (CMAKE_C_FLAGS_DEBUG "-g ${CMAKE_C_FLAGS_RELEASE}")
+  set (CMAKE_CXX_FLAGS_DEBUG "-g ${CMAKE_CXX_FLAGS_RELEASE}")
+  set (CMAKE_SHARED_LINKER_FLAGS_DEBUG ${CMAKE_SHARED_LINKER_FLAGS_RELEASE})
+
 endif()
 
 include(cmake/OpenCVMinDepVersions.cmake)

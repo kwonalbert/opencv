@@ -1,0 +1,13 @@
+enclave {
+
+    from "sgx_tstdc.edl" import *;
+
+    trusted {
+
+        public sgx_status_t test_matrix(
+	       uint32_t rows,
+	       uint32_t cols);
+
+    };
+
+};
