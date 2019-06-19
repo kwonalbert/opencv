@@ -1,0 +1,18 @@
+enclave {
+
+    from "sgx_tstdc.edl" import *;
+
+    trusted {
+
+        public sgx_status_t test_imgproc(
+	    uint32_t height,
+	    uint32_t width,
+	    [in, count=matrix_size] uint8_t *matrix,
+	    uint32_t matrix_size,
+   	    [out, count=out_size] uint8_t *out,
+	    uint32_t out_size
+	);
+
+    };
+
+};

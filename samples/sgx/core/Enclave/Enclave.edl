@@ -4,7 +4,7 @@ enclave {
 
     trusted {
 
-        public sgx_status_t test_matrix(
+        public double test_matrix(
 	       uint32_t rows,
 	       uint32_t cols);
 

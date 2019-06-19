@@ -29,3 +29,8 @@ add_untrusted_executable (core_sgx
   EDL ${edl_enclave}
   EDL_SEARCH_PATHS ${edl_paths}
   )
+
+add_dependencies (core_sgx
+  enclave
+  enclave-sign
+  )
