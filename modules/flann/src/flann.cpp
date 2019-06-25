@@ -43,6 +43,7 @@ namespace cvflann
      */
     void set_distance_type(flann_distance_t distance_type, int /*order*/)
     {
+#ifndef OPENCV_SGX
         printf("[WARNING] The cvflann::set_distance_type function is deperecated, "
             "use cv::flann::GenericIndex<Distance> instead.\n");
         if (distance_type != FLANN_DIST_L1 && distance_type != FLANN_DIST_L2) {
@@ -50,6 +51,7 @@ namespace cvflann
             "for the L1 and L2 distances. "
             "For other distance types you must use cv::flann::GenericIndex<Distance>\n");
         }
+#endif // OPENCV_SGX
         flann_distance_type_ = distance_type;
     }
 

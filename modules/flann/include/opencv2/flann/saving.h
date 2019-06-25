@@ -62,6 +62,7 @@ struct Datatype<float> { static flann_datatype_t type() { return FLANN_FLOAT32; 
 template<>
 struct Datatype<double> { static flann_datatype_t type() { return FLANN_FLOAT64; } };
 
+#ifndef OPENCV_SGX
 
 /**
  * Structure representing the index header.
@@ -181,6 +182,8 @@ void load_value(FILE* stream, std::vector<T>& value)
         throw FLANNException("Cannot read from file");
     }
 }
+
+#endif // OPENCV_SGX
 
 }
 

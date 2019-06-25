@@ -486,6 +486,7 @@ public:
     }
 
 
+#ifndef OPENCV_SGX
     void saveIndex(FILE* stream) CV_OVERRIDE
     {
         save_value(stream, branching_);
@@ -533,7 +534,7 @@ public:
         params["centers_init"] = centers_init_;
         params["leaf_size"] = leaf_size_;
     }
-
+#endif // OPENCV_SGX
 
     /**
      * Find set of nearest neighbors to vec. Their indices are stored inside
@@ -613,7 +614,7 @@ private:
     typedef BranchStruct<NodePtr, DistanceType> BranchSt;
 
 
-
+#ifndef OPENCV_SGX
     void save_tree(FILE* stream, NodePtr node, int num)
     {
         save_value(stream, *node);
@@ -645,7 +646,7 @@ private:
             }
         }
     }
-
+#endif // OPENCV_SGX
 
 
 

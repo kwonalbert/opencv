@@ -141,6 +141,7 @@ public:
         kdtree_index_->buildIndex();
     }
 
+#ifndef OPENCV_SGX
     /**
      * \brief Saves the index to a stream
      * \param stream The stream to save the index to
@@ -160,6 +161,7 @@ public:
         kmeans_index_->loadIndex(stream);
         kdtree_index_->loadIndex(stream);
     }
+#endif // OPENCV_SGX
 
     /**
      * \returns The index parameters

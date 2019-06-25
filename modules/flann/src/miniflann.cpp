@@ -2,6 +2,8 @@
 
 #define MINIFLANN_SUPPORT_EXOTIC_DISTANCE_TYPES 0
 
+#ifndef OPENCV_SGX
+
 static cvflann::IndexParams& get_params(const cv::flann::IndexParams& p)
 {
     return *(cvflann::IndexParams*)(p.params);
@@ -826,3 +828,4 @@ bool Index::load(InputArray _data, const String& filename)
 }
 
 }
+#endif // OPENCV_SGX

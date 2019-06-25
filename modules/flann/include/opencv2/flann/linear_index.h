@@ -90,6 +90,7 @@ public:
         /* nothing to do here for linear search */
     }
 
+#ifndef OPENCV_SGX
     void saveIndex(FILE*) CV_OVERRIDE
     {
         /* nothing to do here for linear search */
@@ -102,6 +103,7 @@ public:
 
         index_params_["algorithm"] = getType();
     }
+#endif // OPENCV_SGX
 
     void findNeighbors(ResultSet<DistanceType>& resultSet, const ElementType* vec, const SearchParams& /*searchParams*/) CV_OVERRIDE
     {

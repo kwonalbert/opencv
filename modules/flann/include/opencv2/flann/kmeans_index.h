@@ -433,6 +433,7 @@ public:
     }
 
 
+#ifndef OPENCV_SGX
     void saveIndex(FILE* stream) CV_OVERRIDE
     {
         save_value(stream, branching_);
@@ -469,7 +470,7 @@ public:
         index_params_["cb_index"] = cb_index_;
 
     }
-
+#endif // OPENCV_SGX
 
     /**
      * Find set of nearest neighbors to vec. Their indices are stored inside
@@ -593,7 +594,7 @@ private:
 
 
 
-
+#ifndef OPENCV_SGX
     void save_tree(FILE* stream, KMeansNodePtr node)
     {
         save_value(stream, *node);
@@ -628,7 +629,7 @@ private:
             }
         }
     }
-
+#endif // OPENCV_SGX
 
     /**
      * Helper function

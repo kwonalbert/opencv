@@ -68,10 +68,12 @@ public:
      */
     CV_DEPRECATED void free()
     {
+#ifndef OPENCV_SGX
         fprintf(stderr, "The cvflann::Matrix<T>::free() method is deprecated "
                 "and it does not do any memory deallocation any more.  You are"
                 "responsible for deallocating the matrix memory (by doing"
                 "'delete[] matrix.data' for example)");
+#endif // OPENCV_SGX
     }
 
     /**

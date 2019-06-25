@@ -15,7 +15,7 @@ FATAL: In-source builds are not allowed.
 endif()
 
 if(BUILD_SGX)
-  set (BUILD_LIST core)
+  set (BUILD_LIST core imgproc calib3d)
   set (CMAKE_BUILD_TYPE Release)
   set (BUILD_SHARED_LIBS No)
   set (WITH_IPP OFF)
@@ -35,7 +35,7 @@ if(BUILD_SGX)
   set (SGX_LIBRARY_PATH ${SGX_PATH}/lib64)
   set (SGX_TLIBC_INCLUDE_DIR ${SGX_INCLUDE_DIR}/tlibc)
   set (SGX_LIBCXX_INCLUDE_DIR ${SGX_INCLUDE_DIR}/libcxx)
-  set (CMAKE_C_FLAGS_RELEASE "-nostdinc -nodefaultlibs -fpie -fstack-protector-strong -I${SGX_INCLUDE_DIR} -I${SGX_TLIBC_INCLUDE_DIR} -I${SGX_LIBCXX_INCLUDE_DIR} -I/usr/lib/gcc/x86_64-pc-linux-gnu/8.3.0/include")
+  set (CMAKE_C_FLAGS_RELEASE "-nostdinc -nodefaultlibs -fpie -fstack-protector-strong -I${SGX_INCLUDE_DIR} -I${SGX_TLIBC_INCLUDE_DIR} -I${SGX_LIBCXX_INCLUDE_DIR} -I/usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include")
   set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -nostdinc++")
   set (CMAKE_SHARED_LINKER_FLAGS_RELEASE "-Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L${SGX_LIBRARY_PATH} \
 				-Wl,--whole-archive -lsgx_trts -Wl,--no-whole-archive \

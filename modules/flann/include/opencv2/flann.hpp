@@ -84,7 +84,9 @@ template <> struct CvType<double> { static int type() { return CV_64F; } };
 
 // bring the flann parameters into this namespace
 using ::cvflann::get_param;
+#ifndef OPENCV_SGX
 using ::cvflann::print_params;
+#endif // OPENCV_SGX
 
 // bring the flann distances into this namespace
 using ::cvflann::L2_Simple;
@@ -301,6 +303,7 @@ private:
 
 //! @cond IGNORED
 
+#ifndef OPENCV_SGX
 #define FLANN_DISTANCE_CHECK \
     if ( ::cvflann::flann_distance_type() != cvflann::FLANN_DIST_L2) { \
         printf("[WARNING] You are using cv::flann::Index (or cv::flann::GenericIndex) and have also changed "\
@@ -308,7 +311,9 @@ private:
         "(cv::flann::Index always uses L2). You should create the index templated on the distance, "\
         "for example for L1 distance use: GenericIndex< L1<float> > \n"); \
     }
-
+#else
+#define FLANN_DISTANCE_CHECK
+#endif // OPENCV_SGX
 
 template <typename Distance>
 GenericIndex<Distance>::GenericIndex(const Mat& dataset, const ::cvflann::IndexParams& params, Distance distance)
@@ -409,7 +414,9 @@ public:
 
     CV_DEPRECATED Index_(const Mat& dataset, const ::cvflann::IndexParams& params)
     {
+#ifndef OPENCV_SGX
         printf("[WARNING] The cv::flann::Index_<T> class is deperecated, use cv::flann::GenericIndex<Distance> instead\n");
+#endif // OPENCV_SGX
 
         CV_Assert(dataset.type() == CvType<ElementType>::type());
         CV_Assert(dataset.isContinuous());
@@ -424,8 +431,10 @@ public:
             nnIndex_L2 = NULL;
         }
         else {
+#ifndef OPENCV_SGX
             printf("[ERROR] cv::flann::Index_<T> only provides backwards compatibility for the L1 and L2 distances. "
                    "For other distance types you must use cv::flann::GenericIndex<Distance>\n");
+#endif // OPENCV_SGX
             CV_Assert(0);
         }
         if (nnIndex_L1) nnIndex_L1->buildIndex();
@@ -570,8 +579,10 @@ int hierarchicalClustering(const Mat& features, Mat& centers, const ::cvflann::K
 template <typename ELEM_TYPE, typename DIST_TYPE>
 CV_DEPRECATED int hierarchicalClustering(const Mat& features, Mat& centers, const ::cvflann::KMeansIndexParams& params)
 {
+#ifndef OPENCV_SGX
     printf("[WARNING] cv::flann::hierarchicalClustering<ELEM_TYPE,DIST_TYPE> is deprecated, use "
         "cv::flann::hierarchicalClustering<Distance> instead\n");
+#endif // OPENCV_SGX
 
     if ( ::cvflann::flann_distance_type() == cvflann::FLANN_DIST_L2 ) {
         return hierarchicalClustering< L2<ELEM_TYPE> >(features, centers, params);
@@ -580,9 +591,11 @@ CV_DEPRECATED int hierarchicalClustering(const Mat& features, Mat& centers, cons
         return hierarchicalClustering< L1<ELEM_TYPE> >(features, centers, params);
     }
     else {
+#ifndef OPENCV_SGX
         printf("[ERROR] cv::flann::hierarchicalClustering<ELEM_TYPE,DIST_TYPE> only provides backwards "
         "compatibility for the L1 and L2 distances. "
         "For other distance types you must use cv::flann::hierarchicalClustering<Distance>\n");
+#endif // OPENCV_SGX
         CV_Assert(0);
     }
 }

@@ -102,7 +102,9 @@ public:
     virtual int radiusSearch(const Matrix<ElementType>& query, Matrix<int>& indices, Matrix<DistanceType>& dists, float radius, const SearchParams& params)
     {
         if (query.rows != 1) {
+#ifndef OPENCV_SGX
             fprintf(stderr, "I can only search one feature at a time for range search\n");
+#endif // OPENCV_SGX
             return -1;
         }
         assert(query.cols == veclen());
@@ -128,6 +130,7 @@ public:
         return (int)resultSet.size();
     }
 
+#ifndef OPENCV_SGX
     /**
      * \brief Saves the index to a stream
      * \param stream The stream to save the index to
@@ -139,6 +142,7 @@ public:
      * \param stream The stream from which the index is loaded
      */
     virtual void loadIndex(FILE* stream) = 0;
+#endif // OPENCV_SGX
 
     /**
      * \returns number of features in this index.

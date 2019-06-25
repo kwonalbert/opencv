@@ -14,7 +14,9 @@
 
 #include "defines.h"
 #include <stdexcept>
+#ifndef OPENCV_SGX
 #include <ostream>
+#endif // OPENCV_SGX
 #include <typeinfo>
 
 namespace cvflann
@@ -31,11 +33,13 @@ struct empty_any
 {
 };
 
+#ifndef OPENCV_SGX
 inline std::ostream& operator <<(std::ostream& out, const empty_any&)
 {
     out << "[empty_any]";
     return out;
 }
+#endif // OPENCV_SGX
 
 struct base_any_policy
 {
@@ -47,7 +51,9 @@ struct base_any_policy
     virtual const void* get_value(void* const * src) = 0;
     virtual ::size_t get_size() = 0;
     virtual const std::type_info& type() = 0;
+#ifndef OPENCV_SGX
     virtual void print(std::ostream& out, void* const* src) = 0;
+#endif // OPENCV_SGX
     virtual ~base_any_policy() {}
 };
 
@@ -71,7 +77,9 @@ struct small_any_policy CV_FINAL : typed_base_any_policy<T>
     virtual void move(void* const* src, void** dest) CV_OVERRIDE { *dest = *src; }
     virtual void* get_value(void** src) CV_OVERRIDE { return reinterpret_cast<void*>(src); }
     virtual const void* get_value(void* const * src) CV_OVERRIDE { return reinterpret_cast<const void*>(src); }
+#ifndef OPENCV_SGX
     virtual void print(std::ostream& out, void* const* src) CV_OVERRIDE { out << *reinterpret_cast<T const*>(src); }
+#endif // OPENCV_SGX
 };
 
 template<typename T>
@@ -97,9 +105,12 @@ struct big_any_policy CV_FINAL : typed_base_any_policy<T>
     }
     virtual void* get_value(void** src) CV_OVERRIDE { return *src; }
     virtual const void* get_value(void* const * src) CV_OVERRIDE { return *src; }
+#ifndef OPENCV_SGX
     virtual void print(std::ostream& out, void* const* src) CV_OVERRIDE { out << *reinterpret_cast<T const*>(*src); }
+#endif // OPENCV_SGX
 };
 
+#ifndef OPENCV_SGX
 template<> inline void big_any_policy<flann_centers_init_t>::print(std::ostream& out, void* const* src)
 {
     out << int(*reinterpret_cast<flann_centers_init_t const*>(*src));
@@ -114,6 +125,7 @@ template<> inline void big_any_policy<cv::String>::print(std::ostream& out, void
 {
     out << (*reinterpret_cast<cv::String const*>(*src)).c_str();
 }
+#endif // OPENCV_SGX
 
 template<typename T>
 struct choose_policy
@@ -316,14 +328,18 @@ public:
         return policy->type();
     }
 
+#ifndef OPENCV_SGX
     friend std::ostream& operator <<(std::ostream& out, const any& any_val);
+#endif // OPENCV_SGX
 };
 
+#ifndef OPENCV_SGX
 inline std::ostream& operator <<(std::ostream& out, const any& any_val)
 {
     any_val.policy->print(out,&any_val.object);
     return out;
 }
+#endif // OPENCV_SGX
 
 }
 

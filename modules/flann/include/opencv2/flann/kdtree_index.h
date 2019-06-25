@@ -142,6 +142,7 @@ public:
     }
 
 
+#ifndef OPENCV_SGX
     void saveIndex(FILE* stream) CV_OVERRIDE
     {
         save_value(stream, trees_);
@@ -166,6 +167,7 @@ public:
         index_params_["algorithm"] = getType();
         index_params_["trees"] = tree_roots_;
     }
+#endif // OPENCV_SGX
 
     /**
      *  Returns size of index.
@@ -244,6 +246,7 @@ private:
 
 
 
+#ifndef OPENCV_SGX
     void save_tree(FILE* stream, NodePtr tree)
     {
         save_value(stream, *tree);
@@ -267,7 +270,7 @@ private:
             load_tree(stream, tree->child2);
         }
     }
-
+#endif // OPENCV_SGX
 
     /**
      * Create a tree node that subdivides the list of vecs from vind[first]
@@ -426,7 +429,9 @@ private:
         //		checkID -= 1;  /* Set a different unique ID for each search. */
 
         if (trees_ > 1) {
+#ifndef OPENCV_SGX
             fprintf(stderr,"It doesn't make any sense to use more than one tree for exact search");
+#endif // OPENCV_SGX
         }
         if (trees_>0) {
             searchLevelExact(result, vec, tree_roots_[0], 0.0, epsError);

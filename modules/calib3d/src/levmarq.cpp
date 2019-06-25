@@ -114,12 +114,14 @@ public:
         double lambda = 1, lc = 0.75;
         int i, iter = 0;
 
+#ifndef OPENCV_SGX
         if( printInterval != 0 )
         {
             printf("************************************************************************************\n");
             printf("\titr\tnfJ\t\tSUM(r^2)\t\tx\t\tdx\t\tl\t\tlc\n");
             printf("************************************************************************************\n");
         }
+#endif // OPENCV_SGX
 
         for( ;; )
         {
@@ -175,11 +177,13 @@ public:
             iter++;
             bool proceed = iter < maxIters && norm(d, NORM_INF) >= epsx && norm(r, NORM_INF) >= epsf;
 
+#ifndef OPENCV_SGX
             if( printInterval != 0 && (iter % printInterval == 0 || iter == 1 || !proceed) )
             {
                 printf("%c%10d %10d %15.4e %16.4e %17.4e %16.4e %17.4e\n",
                        (proceed ? ' ' : '*'), iter, nfJ, S, x.at<double>(0), d.at<double>(0), lambda, lc);
             }
+#endif // OPENCV_SGX
 
             if(!proceed)
                 break;

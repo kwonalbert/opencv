@@ -40,7 +40,9 @@
 #include <iomanip>
 #include <limits.h>
 // TODO as soon as we use C++0x, use the code in USE_UNORDERED_MAP
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
+#if defined(OPENCV_SGX)
+#  define USE_UNORDERED_MAP 0
+#elif defined(__GXX_EXPERIMENTAL_CXX0X__)
 #  define USE_UNORDERED_MAP 1
 #else
 #  define USE_UNORDERED_MAP 0
@@ -93,6 +95,7 @@ struct LshStats
     std::vector<std::vector<unsigned int> > size_histogram_;
 };
 
+#ifndef OPENCV_SGX
 /** Overload the << operator for LshStats
  * @param out the streams
  * @param stats the stats to display
@@ -117,7 +120,7 @@ inline std::ostream& operator <<(std::ostream& out, const LshStats& stats)
 
     return out;
 }
-
+#endif // OPENCV_SGX
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -160,7 +163,9 @@ public:
     {
         feature_size_ = feature_size;
         CV_UNUSED(key_size);
+#ifndef OPENCV_SGX
         std::cerr << "LSH is not implemented for that type" << std::endl;
+#endif // OPENCV_SGX
         assert(0);
     }
 
@@ -241,7 +246,9 @@ public:
      */
     size_t getKey(const ElementType* /*feature*/) const
     {
+#ifndef OPENCV_SGX
         std::cerr << "LSH is not implemented for that type" << std::endl;
+#endif // OPENCV_SGX
         assert(0);
         return 1;
     }

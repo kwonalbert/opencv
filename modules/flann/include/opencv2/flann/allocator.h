@@ -145,7 +145,9 @@ public:
             // use the standard C malloc to allocate memory
             void* m = ::malloc(blockSize);
             if (!m) {
+#ifndef OPENCV_SGX
                 fprintf(stderr,"Failed to allocate memory.\n");
+#endif // OPENCV_SGX
                 return NULL;
             }
 

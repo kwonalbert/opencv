@@ -138,7 +138,7 @@ public:
         return FLANN_INDEX_KDTREE_SINGLE;
     }
 
-
+#ifndef OPENCV_SGX
     void saveIndex(FILE* stream) CV_OVERRIDE
     {
         save_value(stream, size_);
@@ -175,6 +175,7 @@ public:
         index_params_["leaf_max_size"] = leaf_max_size_;
         index_params_["reorder"] = reorder_;
     }
+#endif // OPENCV_SGX
 
     /**
      *  Returns size of index.
@@ -286,7 +287,7 @@ private:
 
 
 
-
+#ifndef OPENCV_SGX
     void save_tree(FILE* stream, NodePtr tree)
     {
         save_value(stream, *tree);
@@ -310,7 +311,7 @@ private:
             load_tree(stream, tree->child2);
         }
     }
-
+#endif // OPENCV_SGX
 
     void computeBoundingBox(BoundingBox& bbox)
     {

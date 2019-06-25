@@ -58,7 +58,12 @@
 #define DEBUGLOGS 0
 #endif
 
-#ifdef __ANDROID__
+#if defined(OPENCV_SGX)
+#define LOGD0(...)
+#define LOGI0(...)
+#define LOGW0(...)
+#define LOGE0(...)
+#elif defined(__ANDROID__)
 #include <android/log.h>
 #define LOG_TAG "OBJECT_DETECTOR"
 #define LOGD0(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__))

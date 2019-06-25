@@ -265,8 +265,10 @@ bool CascadeClassifier::convert(const String& oldcascade, const String& newcasca
     FileNode oldroot = oldfs.getFirstTopLevelNode();
 
     bool ok = haar_cvt::convert(oldroot, newfs);
+#ifndef OPENCV_SGX
     if( !ok && newcascade.size() > 0 )
         remove(newcascade.c_str());
+#endif // OPENCV_SGX
     return ok;
 }
 

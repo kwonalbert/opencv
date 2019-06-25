@@ -32,7 +32,9 @@
 
 #include "any.h"
 #include "general.h"
+#ifndef OPENCV_SGX
 #include <iostream>
+#endif // OPENCV_SGX
 #include <map>
 
 
@@ -79,6 +81,7 @@ T get_param(const IndexParams& params, cv::String name)
     }
 }
 
+#ifndef OPENCV_SGX
 inline void print_params(const IndexParams& params, std::ostream& stream)
 {
     IndexParams::const_iterator it;
@@ -93,7 +96,8 @@ inline void print_params(const IndexParams& params)
     print_params(params, std::cout);
 }
 
-}
+#endif // OPENCV_SGX
 
+}
 
 #endif /* OPENCV_FLANN_PARAMS_H_ */

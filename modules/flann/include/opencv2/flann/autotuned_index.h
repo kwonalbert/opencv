@@ -102,6 +102,7 @@ public:
      */
     virtual void buildIndex() CV_OVERRIDE
     {
+#ifndef OPENCV_SGX
         std::ostringstream stream;
         bestParams_ = estimateBuildParams();
         print_params(bestParams_, stream);
@@ -119,8 +120,15 @@ public:
         Logger::info("Search parameters:\n");
         Logger::info("%s", stream.str().c_str());
         Logger::info("----------------------------------------------------\n");
+#else
+        bestParams_ = estimateBuildParams();
+        bestIndex_ = create_index_by_type(dataset_, bestParams_, distance_);
+        bestIndex_->buildIndex();
+        speedup_ = estimateSearchParams(bestSearchParams_);
+#endif // OPENCV_SGX
     }
 
+#ifndef OPENCV_SGX
     /**
      *  Saves the index to a stream
      */
@@ -147,6 +155,7 @@ public:
         load_value(stream, checks);
         bestSearchParams_["checks"] = checks;
     }
+#endif // OPENCV_SGX
 
     /**
      *      Method that searches for nearest-neighbors

@@ -42,6 +42,8 @@ namespace cvflann
 
 class Logger
 {
+
+#ifndef OPENCV_SGX
     Logger() : stream(stdout), logLevel(FLANN_LOG_WARN) {}
 
     ~Logger()
@@ -51,6 +53,10 @@ class Logger
         }
     }
 
+#else
+    Logger() : logLevel(FLANN_LOG_WARN) {}
+#endif // OPENCV_SGX
+
     static Logger& instance()
     {
         static Logger logger;
@@ -59,6 +65,7 @@ class Logger
 
     void _setDestination(const char* name)
     {
+#ifndef OPENCV_SGX
         if (name==NULL) {
             stream = stdout;
         }
@@ -73,13 +80,18 @@ class Logger
                 stream = stdout;
             }
         }
+#endif // OPENCV_SGX
     }
 
     int _log(int level, const char* fmt, va_list arglist)
     {
+#ifndef OPENCV_SGX
         if (level > logLevel ) return -1;
         int ret = vfprintf(stream, fmt, arglist);
         return ret;
+#else
+	return 0;
+#endif // OPENCV_SGX
     }
 
 public:
@@ -103,11 +115,15 @@ public:
      */
     static int log(int level, const char* fmt, ...)
     {
+#ifndef OPENCV_SGX
         va_list arglist;
         va_start(arglist, fmt);
         int ret = instance()._log(level,fmt,arglist);
         va_end(arglist);
         return ret;
+#else
+	return 0;
+#endif // OPENCV_SGX
     }
 
 #define LOG_METHOD(NAME,LEVEL) \
@@ -126,7 +142,9 @@ public:
     LOG_METHOD(info, FLANN_LOG_INFO)
 
 private:
+#ifndef OPENCV_SGX
     FILE* stream;
+#endif // OPENCV_SGX
     int logLevel;
 };
 

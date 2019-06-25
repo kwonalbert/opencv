@@ -125,6 +125,7 @@ public:
     }
 
 
+#ifndef OPENCV_SGX
     void saveIndex(FILE* stream) CV_OVERRIDE
     {
         save_value(stream,table_number_);
@@ -147,6 +148,7 @@ public:
         index_params_["key_size"] = key_size_;
         index_params_["multi_probe_level"] = multi_probe_level_;
     }
+#endif // OPENCV_SGX
 
     /**
      *  Returns size of index.

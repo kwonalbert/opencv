@@ -72,6 +72,7 @@ struct SavedIndexParams : public IndexParams
 template<typename Distance>
 NNIndex<Distance>* load_saved_index(const Matrix<typename Distance::ElementType>& dataset, const cv::String& filename, Distance distance)
 {
+#ifndef OPENCV_SGX
     typedef typename Distance::ElementType ElementType;
 
     FILE* fin = fopen(filename.c_str(), "rb");
@@ -95,6 +96,9 @@ NNIndex<Distance>* load_saved_index(const Matrix<typename Distance::ElementType>
     fclose(fin);
 
     return nnIndex;
+#else
+    return NULL;
+#endif // OPENCV_SGX
 }
 
 
@@ -137,6 +141,7 @@ public:
 
     void save(cv::String filename)
     {
+#ifndef OPENCV_SGX
         FILE* fout = fopen(filename.c_str(), "wb");
         if (fout == NULL) {
             throw FLANNException("Cannot open file");
@@ -144,8 +149,10 @@ public:
         save_header(fout, *nnIndex_);
         saveIndex(fout);
         fclose(fout);
+#endif // OPENCV_SGX
     }
 
+#ifndef OPENCV_SGX
     /**
      * \brief Saves the index to a stream
      * \param stream The stream to save the index to
@@ -163,6 +170,7 @@ public:
     {
         nnIndex_->loadIndex(stream);
     }
+#endif // OPENCV_SGX
 
     /**
      * \returns number of features in this index.
