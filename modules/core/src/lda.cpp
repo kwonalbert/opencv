@@ -1019,6 +1019,7 @@ LDA::LDA(InputArrayOfArrays src, InputArray labels, int num_components) : _num_c
 
 LDA::~LDA() {}
 
+#ifndef OPENCV_SGX
 void LDA::save(const String& filename) const
 {
     FileStorage fs(filename, FileStorage::WRITE);
@@ -1053,6 +1054,7 @@ void LDA::load(const FileStorage& fs) {
     fs["eigenvalues"] >> _eigenvalues;
     fs["eigenvectors"] >> _eigenvectors;
 }
+#endif // OPENCV_SG
 
 void LDA::lda(InputArrayOfArrays _src, InputArray _lbls) {
     // get data
