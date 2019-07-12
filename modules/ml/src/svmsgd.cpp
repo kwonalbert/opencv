@@ -43,10 +43,12 @@
 #include "precomp.hpp"
 #include "limits"
 
+#ifndef OPENCV_SGX
 #include <iostream>
 
 using std::cout;
 using std::endl;
+#endif
 
 /****************************************************************************************\
 *                        Stochastic Gradient Descent SVM Classifier                      *

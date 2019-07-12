@@ -118,11 +118,17 @@ public:
 
     TrainDataImpl()
     {
+#ifndef OPENCV_SGX
         file = 0;
+#endif
         clear();
     }
 
-    virtual ~TrainDataImpl() { closeFile(); }
+    virtual ~TrainDataImpl() {
+#ifndef OPENCV_SGX
+        closeFile();
+#endif
+    }
 
     int getLayout() const CV_OVERRIDE { return layout; }
     int getNSamples() const CV_OVERRIDE
@@ -211,10 +217,14 @@ public:
 
     Mat getDefaultSubstValues() const CV_OVERRIDE { return missingSubst; }
 
+#ifndef OPENCV_SGX
     void closeFile() { if(file) fclose(file); file=0; }
+#endif
     void clear()
     {
+#ifndef OPENCV_SGX
         closeFile();
+#endif
         samples.release();
         missing.release();
         varType.release();
@@ -501,6 +511,7 @@ public:
             counters->at(clslabel) = i - previdx;
     }
 
+#ifndef OPENCV_SGX
     bool loadCSV(const String& filename, int headerLines,
                  int responseStartIdx, int responseEndIdx,
                  const String& varTypeSpec, char delimiter, char missch)
@@ -671,6 +682,7 @@ public:
         }
         return ok;
     }
+#endif
 
     void decodeElem( const char* token, float& elem, int& type,
                      char missch, MapType& namemap, int& counter ) const
@@ -1006,7 +1018,10 @@ public:
         return varSymbolFlags;
     }
 
+#ifndef OPENCV_SGX
     FILE* file;
+#else
+#endif
     int layout;
     Mat samples, missing, varType, varIdx, varSymbolFlags, responses, missingSubst;
     Mat sampleIdx, trainSampleIdx, testSampleIdx;
@@ -1015,7 +1030,7 @@ public:
     MapType nameMap;
 };
 
-
+#ifndef OPENCV_SGX
 Ptr<TrainData> TrainData::loadFromCSV(const String& filename,
                                       int headerLines,
                                       int responseStartIdx,
@@ -1029,6 +1044,7 @@ Ptr<TrainData> TrainData::loadFromCSV(const String& filename,
         td.release();
     return td;
 }
+#endif
 
 Ptr<TrainData> TrainData::create(InputArray samples, int layout, InputArray responses,
                                  InputArray varIdx, InputArray sampleIdx, InputArray sampleWeights,
