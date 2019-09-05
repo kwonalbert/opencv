@@ -40,6 +40,8 @@
 //
 //M*/
 
+#ifndef OPENCV_SGX
+
 #include "precomp.hpp"
 #include "gl_core_3_1.hpp"
 
@@ -2760,3 +2762,5 @@ namespace gl
 
     InitializeVariables g_initVariables;
 }
+
+#endif // OPENCV_SGX

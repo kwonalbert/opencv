@@ -45,12 +45,14 @@
 #include <opencv2/core/utils/configuration.private.hpp>
 #include <opencv2/core/utils/trace.private.hpp>
 
+#ifndef OPENCV_SGX
 #if defined _WIN32 || defined WINCE
     #include <windows.h>
     #undef small
     #undef min
     #undef max
     #undef abs
+#endif
 #endif
 
 #if defined __linux__ || defined __APPLE__ || defined __GLIBC__ \
@@ -74,7 +76,9 @@
 #endif
 
 #if defined _MSC_VER && _MSC_VER >= 1600
+    #ifndef OPENCV_SGX
     #define HAVE_CONCURRENCY
+    #endif
 #endif
 
 /* IMPORTANT: always use the same order of defines
@@ -818,6 +822,7 @@ static inline int getNumberOfCPUsImpl()
 
 int cv::getNumberOfCPUs(void)
 {
+#ifndef OPENCV_SGX
 #if defined _WIN32
     SYSTEM_INFO sysinfo;
 #if (defined(_M_ARM) || defined(_M_X64) || defined(WINRT)) && _WIN32_WINNT >= 0x501
@@ -858,6 +863,9 @@ int cv::getNumberOfCPUs(void)
 
     return (int)numCPU;
 #else
+    return 1;
+#endif
+#else // OPENCV_SGX
     return 1;
 #endif
 }

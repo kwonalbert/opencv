@@ -43,6 +43,8 @@
 #ifndef OPENGL_NOLOAD_STYLE_HPP
 #define OPENGL_NOLOAD_STYLE_HPP
 
+#ifndef OPENCV_SGX
+
 #if defined(__gl_h_) || defined(__GL_H__)
 #error Attempt to include auto-generated header after including gl.h
 #endif
@@ -1369,5 +1371,8 @@ namespace gl
     extern void (CODEGEN_FUNCPTR *Ortho)(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_val, GLdouble far_val);
     extern void (CODEGEN_FUNCPTR *Color3d)(GLdouble red, GLdouble green, GLdouble blue);
 }
+
+
+#endif // OPENCV_SGX
 
 #endif // OPENGL_NOLOAD_STYLE_HPP

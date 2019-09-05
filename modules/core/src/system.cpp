@@ -81,7 +81,7 @@ void* allocSingletonNewBuffer(size_t size) { return malloc(size); }
 } // namespace cv
 
 #ifndef CV_ERROR_SET_TERMINATE_HANDLER  // build config option
-# if defined(_WIN32)
+# if defined(_WIN32) && !defined(OPENCV_SGX)
 #   define CV_ERROR_SET_TERMINATE_HANDLER 1
 # endif
 #endif
@@ -126,7 +126,7 @@ void* allocSingletonNewBuffer(size_t size) { return malloc(size); }
 # endif
 #endif
 
-#if defined _WIN32 || defined WINCE
+#if !defined OPENCV_SGX && (defined _WIN32 || defined WINCE)
 #ifndef _WIN32_WINNT           // This is needed for the declaration of TryEnterCriticalSection in winbase.h with Visual Studio 2005 (and older?)
   #define _WIN32_WINNT 0x0400  // http://msdn.microsoft.com/en-us/library/ms686857(VS.85).aspx
 #endif
@@ -227,38 +227,44 @@ std::wstring GetTempFileNameWinRT(std::wstring prefix)
 DECLARE_CV_CPUID_X86
 #endif
 #ifndef CV_CPUID_X86
-  #if defined _MSC_VER && (defined _M_IX86 || defined _M_X64)
-    #if _MSC_VER >= 1400  // MSVS 2005
-      #include <intrin.h>  // __cpuidex()
-      #define CV_CPUID_X86 __cpuidex
-    #else
-      #error "Required MSVS 2005+"
-    #endif
-  #elif defined __GNUC__ && (defined __i386__ || defined __x86_64__)
+  #ifdef OPENCV_SGX
     static void cv_cpuid(int* cpuid_data, int reg_eax, int reg_ecx)
     {
-        int __eax = reg_eax, __ebx = 0, __ecx = reg_ecx, __edx = 0;
-#if defined(OPENCV_SGX)
-	sgx_cpuid(cpuid_data, reg_eax);
-// tested with available compilers (-fPIC -O2 -m32/-m64): https://godbolt.org/
-#elif !defined(__PIC__) \
-    || defined(__x86_64__) || __GNUC__ >= 5 \
-    || defined(__clang__) || defined(__INTEL_COMPILER)
-        __asm__("cpuid\n\t"
-                : "+a" (__eax), "=b" (__ebx), "+c" (__ecx), "=d" (__edx)
-        );
-#elif defined(__i386__)  // ebx may be reserved as the PIC register
-        __asm__("xchg{l}\t{%%}ebx, %1\n\t"
-                "cpuid\n\t"
-                "xchg{l}\t{%%}ebx, %1\n\t"
-                : "+a" (__eax), "=&r" (__ebx), "+c" (__ecx), "=d" (__edx)
-        );
-#else
-#error "Configuration error"
-#endif
-        cpuid_data[0] = __eax; cpuid_data[1] = __ebx; cpuid_data[2] = __ecx; cpuid_data[3] = __edx;
+        sgx_cpuid(cpuid_data, reg_eax);
     }
     #define CV_CPUID_X86 cv_cpuid
+  #else
+    #if defined _MSC_VER && (defined _M_IX86 || defined _M_X64)
+        #if _MSC_VER >= 1400  // MSVS 2005
+        #include <intrin.h>  // __cpuidex()
+        #define CV_CPUID_X86 __cpuidex
+        #else
+        #error "Required MSVS 2005+"
+        #endif
+    #elif defined __GNUC__ && (defined __i386__ || defined __x86_64__)
+        static void cv_cpuid(int* cpuid_data, int reg_eax, int reg_ecx)
+        {
+            int __eax = reg_eax, __ebx = 0, __ecx = reg_ecx, __edx = 0;
+    // tested with available compilers (-fPIC -O2 -m32/-m64): https://godbolt.org/
+    #if !defined(__PIC__) \
+        || defined(__x86_64__) || __GNUC__ >= 5 \
+        || defined(__clang__) || defined(__INTEL_COMPILER)
+            __asm__("cpuid\n\t"
+                    : "+a" (__eax), "=b" (__ebx), "+c" (__ecx), "=d" (__edx)
+            );
+    #elif defined(__i386__)  // ebx may be reserved as the PIC register
+            __asm__("xchg{l}\t{%%}ebx, %1\n\t"
+                    "cpuid\n\t"
+                    "xchg{l}\t{%%}ebx, %1\n\t"
+                    : "+a" (__eax), "=&r" (__ebx), "+c" (__ecx), "=d" (__edx)
+            );
+    #else
+    #error "Configuration error"
+    #endif
+            cpuid_data[0] = __eax; cpuid_data[1] = __ebx; cpuid_data[2] = __ecx; cpuid_data[3] = __edx;
+        }
+        #define CV_CPUID_X86 cv_cpuid
+    #endif
   #endif
 #endif
 
@@ -1021,7 +1027,7 @@ int cv_snprintf(char* buf, int len, const char* fmt, ...)
 
 int cv_vsnprintf(char* buf, int len, const char* fmt, va_list args)
 {
-#if defined _MSC_VER
+#if defined _MSC_VER && !defined OPENCV_SGX
     if (len <= 0) return len == 0 ? 1024 : -1;
     int res = _vsnprintf_s(buf, len, _TRUNCATE, fmt, args);
     // ensure null terminating on VS
@@ -1336,7 +1342,7 @@ public:
     void  SetData(void *pData);
 
 private:
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(OPENCV_SGX)
 #ifndef WINRT
     DWORD tlsKey;
 #endif
@@ -1345,7 +1351,7 @@ private:
 #endif
 };
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(OPENCV_SGX)
 #ifdef WINRT
 static __declspec( thread ) void* tlsData = NULL; // using C++11 thread attribute for local thread data
 TlsAbstraction::TlsAbstraction() {}
