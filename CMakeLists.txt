@@ -63,16 +63,18 @@ if (BUILD_SGX)
     set (SGX_LIBRARY_PATH ${SGX_PATH}/lib64)
     set (SGX_TLIBC_INCLUDE_DIR ${SGX_INCLUDE_DIR}/tlibc)
     set (SGX_LIBCXX_INCLUDE_DIR ${SGX_INCLUDE_DIR}/libcxx)
-    set (CMAKE_C_FLAGS_RELEASE "-nostdinc -nodefaultlibs -fpie -fstack-protector-strong -I${SGX_INCLUDE_DIR} -I${SGX_TLIBC_INCLUDE_DIR} -I${SGX_LIBCXX_INCLUDE_DIR} -I/usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include")
-    set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -nostdinc++")
+    set (BASE_C_FLAGS "-nostdinc -nodefaultlibs -fpie -fstack-protector-strong -I${SGX_INCLUDE_DIR} -I${SGX_TLIBC_INCLUDE_DIR} -I${SGX_LIBCXX_INCLUDE_DIR} -I/usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include")
+    set (BASE_CXX_FLAGS "${BASE_C_FLAGS} -nostdinc++")
+    set (CMAKE_C_FLAGS_RELEASE "-O2 ${BASE_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS_RELEASE "-O2 ${BASE_CXX_FLAGS}")
     set (CMAKE_SHARED_LINKER_FLAGS_RELEASE "-Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L${SGX_LIBRARY_PATH} \
                                   -Wl,--whole-archive -lsgx_trts -Wl,--no-whole-archive \
                                   -Wl,--start-group -lsgx_tstdc -lsgx_tcxx -lsgx_tkey_exchange -lsgx_tcrypto -lsgx_tservice_sim -Wl,--end-group \
                                   -Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined \
                                   -Wl,-pie,-eenclave_entry -Wl,--export-dynamic \
                                   -Wl,--defsym,__ImageBase=0")
-    set (CMAKE_C_FLAGS_DEBUG "-g ${CMAKE_C_FLAGS_RELEASE}")
-    set (CMAKE_CXX_FLAGS_DEBUG "-g ${CMAKE_CXX_FLAGS_RELEASE}")
+    set (CMAKE_C_FLAGS_DEBUG "-g ${BASE_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS_DEBUG "-g ${BASE_CXX_FLAGS}")
     set (CMAKE_SHARED_LINKER_FLAGS_DEBUG ${CMAKE_SHARED_LINKER_FLAGS_RELEASE})
   else() # WINDOWS
     set (SGX_INCLUDE_DIR ${SGX_PATH}/include)
@@ -82,7 +84,7 @@ if (BUILD_SGX)
     set (CMAKE_C_FLAGS_RELEASE "/X -I${SGX_INCLUDE_DIR} -I${SGX_TLIBC_INCLUDE_DIR} -I${SGX_LIBCXX_INCLUDE_DIR} -IC:\\badge\\build\\include\\winintrin -I\"C:/Program\ Files\ (x86)/Microsoft\ Visual\ Studio/2017/Community/VC/Tools/MSVC/14.16.27023/include\"")
     #set (CMAKE_C_FLAGS_RELEASE "-I${SGX_INCLUDE_DIR} -I${SGX_TLIBC_INCLUDE_DIR} -I${SGX_LIBCXX_INCLUDE_DIR} -IC:\\badge\\build\\include\\winintrin")
     set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
-    
+
     #the untrusted executable needs the defaults?
     set (CMAKE_C_STANDARD_LIBRARIES_DEFAULT ${CMAKE_C_STANDARD_LIBRARIES})
     set (CMAKE_CXX_STANDARD_LIBRARIES_DEFAULT ${CMAKE_CXX_STANDARD_LIBRARIES})
@@ -106,7 +108,7 @@ if (BUILD_SGX)
     #else ()
     #  message (FATAL_ERROR "SGX_MODE ${SGX_MODE} is not Debug, PreRelease or Release.")
     #endif ()
-    # 
+    #
     #set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB")
     #  target_link_directories (${target}_sgx PRIVATE ${SGX_LIBRARY_PATH})
     #  target_link_libraries (${target}_sgx "sgx_trts;sgx_tstdc;sgx_tcxx;sgx_tcrypto;sgx_tservice"
